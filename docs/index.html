@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primes that come back — explained from scratch</title>
+<meta name="description" content="Which primes p lead back to themselves through p+1, q^2+q+1 and r^2+r+1: what the question is, how every prime up to 10^11 was checked, and what was found, for anyone who can divide.">
+<style>
+:root{--ink:#1f2933;--soft:#52606d;--mute:#7b8794;--line:#d9e0e6;--bg:#fbfbf9;--card:#fff;
+      --blue:#2f6fb5;--green:#2e7d52;--sel:#e8f0fa;
+      --serif:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
+      --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--ink:#e4e7eb;--soft:#cbd2d9;--mute:#9aa5b1;--line:#3e4c59;
+      --bg:#12171c;--card:#1a2027;--blue:#7aaee0;--green:#6ec295;--sel:#1e2a38}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.72}
+.wrap{max-width:50rem;margin:0 auto;padding:0 1.25rem 6rem}
+header.top{padding:3.5rem 0 2rem;border-bottom:3px double var(--line);margin-bottom:2rem}
+.kicker{font-family:var(--sans);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:0 0 .9rem}
+h1{font-size:2.3rem;line-height:1.18;margin:0 0 .8rem}
+.sub{font-size:1.1rem;color:var(--soft);margin:0}
+.byline{font-family:var(--sans);font-size:.82rem;color:var(--mute);margin-top:1.6rem}
+h2{font-family:var(--sans);font-size:1.42rem;line-height:1.3;margin:3.2rem 0 .4rem}
+h2 .num{color:var(--mute);margin-right:.5rem}
+h3{font-family:var(--sans);font-size:1.08rem;margin:2rem 0 .3rem}
+p{margin:0 0 1.15rem} a{color:var(--blue)}
+code,.calc{font-family:var(--mono);font-size:.92em}
+.calc{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0;overflow-x:auto;white-space:pre}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.5rem;margin:0 0 2rem;font-family:var(--sans);font-size:.95rem}
+nav.toc ol{margin:0;padding-left:1.3rem;line-height:1.85}
+figure{margin:2rem 0} figure img{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.75rem}
+figcaption{font-family:var(--sans);font-size:.86rem;color:var(--mute);margin-top:.7rem}
+.box{border-radius:12px;padding:1.15rem 1.4rem;margin:1.8rem 0;font-family:var(--sans);font-size:.97rem;line-height:1.65}
+.def{background:var(--sel);border:1px solid var(--line)} .def dt{font-weight:700;margin-top:.7rem} .def dd{margin:.15rem 0 0;color:var(--soft)}
+.try{background:var(--card);border:1px solid var(--green);border-left:5px solid var(--green)}
+details{margin-top:.8rem} summary{cursor:pointer;color:var(--green);font-weight:600}
+.tablewrap{overflow-x:auto} table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.93rem}
+th,td{border-bottom:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+.big{font-size:1.2rem;font-weight:700}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top">
+<p class="kicker">Explained from scratch · OEIS A354427</p>
+<h1>Primes that come back</h1>
+<p class="sub">Start at a prime, take three steps that only use adding and dividing, and see whether you land where you started. Every prime up to <span data-fact="x_bound">100,000,000,000</span> was checked. Exactly <span data-fact="n_terms">6</span> of them come back.</p>
+<p class="byline">Jorge Ellena Godoy · <a href="https://github.com/jorgell23-sys/de-koninck-cycle-primes">the repository</a> · <a href="es/">en español</a></p>
+</header>
+
+<nav class="toc"><ol>
+<li><a href="#question">The question, with numbers</a></li><li><a href="#words">Five words</a></li>
+<li><a href="#recipe">The recipe</a></li><li><a href="#try">Try one yourself</a></li>
+<li><a href="#origin">Where the information comes from</a></li><li><a href="#findings">What was found</a></li>
+<li><a href="#checking">How we know it is not wrong</a></li><li><a href="#useful">What it is good for</a></li>
+<li><a href="#notclaim">What it does not say</a></li></ol></nav>
+
+<h2 id="question"><span class="num">1</span>The question, with numbers</h2>
+<p>Take the prime <b>631</b> and do three things.</p>
+<span class="calc">631 + 1        =  632  = 2 · 2 · 2 · 79      → keep the prime 79
+79·79 + 79 + 1 = 6321 = 3 · 7 · 7 · 43    → keep the prime 43
+43·43 + 43 + 1 = 1893 = 3 · 631           → and 631 is back.</span>
+<p>We went 631 → 79 → 43 → 631 and returned to where we started. Now try the prime <b>7</b>: 7 + 1 = 8 = 2·2·2, so we must keep 2; then 2·2 + 2 + 1 = 7, keep 7; then 7·7 + 7 + 1 = 57 = 3 · 19. There is no 7 in 57. The prime 7 does <i>not</i> come back.</p>
+<p>The question is simply: <b>which primes come back?</b> Tomohiro Yamada asked it in 2022, found 3, 13, 19 and 631, checked that there are no others below 16,777,216, and noted two much bigger ones. What nobody knew is whether there were others hiding in between.</p>
+
+<h2 id="words"><span class="num">2</span>Five words</h2>
+<dl class="box def">
+<dt>prime</dt><dd>a whole number bigger than 1 that only 1 and itself divide: 2, 3, 5, 7, 11, 13, …, 631.</dd>
+<dt>divides</dt><dd>“79 divides 632” means 632 ÷ 79 has no remainder: 632 = 8 · 79.</dd>
+<dt>step</dt><dd>from a prime <i>p</i> you may step to any prime that divides <i>p</i> + 1 (first step) or that divides <i>x·x + x + 1</i> (second and third steps).</dd>
+<dt>witness</dt><dd>the two primes visited on the way back. For 631 the witness is (79, 43). Anyone can check a witness with a calculator.</dd>
+<dt>remainder</dt><dd>what is left after dividing: 1893 leaves remainder 0 when divided by 631, and 57 leaves remainder 1 when divided by 7.</dd>
+</dl>
+
+<h2 id="recipe"><span class="num">3</span>The recipe</h2>
+<p>For a prime <i>p</i>: (1) write <i>p</i> + 1 as a product of primes and choose one of them, <i>q</i>. (2) Compute <i>q·q + q + 1</i>, write it as a product of primes and choose one, <i>r</i>. (3) Compute <i>r·r + r + 1</i> and ask whether <i>p</i> divides it. If some choice of <i>q</i> and <i>r</i> works, <i>p</i> is on the list.</p>
+<figure><img src="figures/cycle.svg" alt="The cycle 631 to 79 to 43 and back to 631"><figcaption><b>Figure 1.</b> The round trip of 631. Each arrow is one step of the recipe.</figcaption></figure>
+
+<h2 id="try"><span class="num">4</span>Try one yourself</h2>
+<div class="box try"><p>Does the prime <b>19</b> come back? You only need to add, multiply and divide by small numbers.</p>
+<details><summary>Show the answer</summary><p>19 + 1 = 20 = 2 · 2 · 5. Choose <i>q</i> = 2: 2·2 + 2 + 1 = 7, so <i>r</i> = 7. Then 7·7 + 7 + 1 = 57 = 3 · 19. Yes: 19 → 2 → 7 → 19, and 19 is on the list.</p></details></div>
+
+<h2 id="origin"><span class="num">5</span>Where the information comes from</h2>
+<p>From a computer program that applies the recipe to <b>every</b> prime up to <span data-fact="x_bound">100,000,000,000</span> — about four billion primes — and to nothing else. Nobody chose which primes to look at, and nobody gave an opinion: the program either finds a witness or it does not.</p>
+<p>The hard part is step (2): <i>q·q + q + 1</i> can have twenty digits, and breaking such numbers into primes billions of times is slow. The program avoids it with a shortcut that is proved in the repository. If the prime <i>r</i> we are looking for is bigger than <i>p</i>, then the other factor of <i>q·q + q + 1</i> is smaller than <i>p</i>, and the rules of remainders say exactly what it must be. So instead of breaking a big number apart, the program only has to test one division.</p>
+<figure><img src="figures/reduction.svg" alt="The cofactor is forced into one place below p"><figcaption><b>Figure 2.</b> Why the shortcut works: the leftover factor has only one possible value, so a single division decides.</figcaption></figure>
+
+<h2 id="findings"><span class="num">6</span>What was found</h2>
+<p>Up to <span data-fact="x_bound">100,000,000,000</span> exactly <span data-fact="n_terms">6</span> primes come back: 3, 13, 19, 631, <b><span data-fact="a5">1,794,067,711</span></b> and <b><span data-fact="a6">10,855,016,833</span></b>.</p>
+<p>The last two were already known to come back. What is new is that <b>there is nothing in between</b>: between 631 and 1,794,067,711, between that and 10,855,016,833, and from there up to one hundred billion, no other prime makes the round trip. That is what lets 1,794,067,711 and 10,855,016,833 be written down as the fifth and sixth members of the list, and it pushes the search from <span data-fact="old_frontier">16,777,216</span> to one hundred billion.</p>
+<figure><img src="figures/frontier.svg" alt="The six primes on a logarithmic scale and the search frontier"><figcaption><b>Figure 3.</b> The six primes (dots) and how far each search went, on a scale where every tick is ten times the previous one.</figcaption></figure>
+
+<h2 id="checking"><span class="num">7</span>How we know it is not wrong</h2>
+<p><b>It finds what was already known.</b> Run from zero, the program gives back exactly Yamada's 3, 13, 19 and 631, and nothing else below 16,777,216 — his published bound. It also finds his two big primes, with the very witnesses he gave. A check that reproduces known answers is called a <i>positive control</i>: if the program missed something it should find, we would know.</p>
+<p><b>Three different programs agree.</b> One follows the recipe literally, breaking every number into primes. Another breaks <i>q·q + q + 1</i> apart by a completely different method and walks the other way round. The third uses the shortcut. They share nothing but the question, and they give the same round trips, one by one, wherever they overlap.</p>
+<p><b>Every answer is re-checked with exact arithmetic.</b> The fast program only proposes; each witness is then verified with whole numbers, which anyone can repeat.</p>
+
+<h2 id="useful"><span class="num">8</span>What it is good for</h2>
+<p>These primes come from an old puzzle by Jean-Marie De Koninck: for which numbers <i>n</i> is the sum of the divisors of <i>n</i> equal to the square of the product of its distinct primes? Only 1 and 1782 are known. Yamada proved that a certain kind of solution would need a prime from this list, or from a similar one with four steps. So knowing the list exactly up to a bound tells anyone searching for solutions where they cannot be. It does not solve the puzzle.</p>
+
+<h2 id="notclaim"><span class="num">9</span>What it does not say</h2>
+<p>It does not say whether the list goes on forever or stops. It does not say anything above one hundred billion. It does not solve De Koninck's puzzle, and it does not touch the four-step list (OEIS A355298), which needs much harder factoring. And it does not discover the fifth and sixth primes — Yamada did — it shows that there are no others before them.</p>
+
+<h2 id="glossary">Glossary</h2>
+<div class="tablewrap"><table><tr><th>word</th><th>meaning</th><th>example</th></tr>
+<tr><td>prime</td><td>divisible only by 1 and itself</td><td>631</td></tr>
+<tr><td>divides</td><td>leaves no remainder</td><td>631 divides 1893</td></tr>
+<tr><td>witness</td><td>the primes visited on the way back</td><td>(79, 43) for 631</td></tr>
+<tr><td>positive control</td><td>a check that must find something already known</td><td>finding 3, 13, 19, 631</td></tr>
+<tr><td>remainder</td><td>what is left after dividing</td><td>57 ÷ 7 leaves 1</td></tr></table></div>
+
+<h2 id="biblio">Further reading</h2>
+<h3>Level 1 — without formulas</h3>
+<p><a href="https://oeis.org/A354427">OEIS A354427</a>, the entry for this list, with Yamada's comments. <a href="https://en.wikipedia.org/wiki/Divisor_function">Divisor function</a> on Wikipedia, for the sum of divisors.</p>
+<h3>Level 2 — a textbook</h3>
+<p>G. H. Hardy and E. M. Wright, <i>An Introduction to the Theory of Numbers</i>, chapter XVI (the arithmetical functions, including the sum of divisors). K. Ireland and M. Rosen, <i>A Classical Introduction to Modern Number Theory</i>, chapter 9, for the cube roots of unity modulo a prime that the shortcut uses.</p>
+<h3>Level 3 — the work this one is measured against</h3>
+<p>T. Yamada, <i>On a problem of De Koninck</i>, Moscow J. Combinatorics and Number Theory 10 (2021) 249–260, <a href="https://doi.org/10.2140/moscow.2021.10.249">doi:10.2140/moscow.2021.10.249</a> — where these primes come from. K. A. Broughan, J.-M. De Koninck, I. Kátai and F. Luca, <i>On integers for which the sum of divisors is the square of the squarefree core</i>, J. Integer Sequences 15 (2012), 12.7.5. L. A. Brown's <a href="https://github.com/lucasaugustus/oeis/blob/main/A354426.py">program for the sister sequence A354426</a>, which he took to 10<sup>8</sup>.</p>
+</div></body></html>

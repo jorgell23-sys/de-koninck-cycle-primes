@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Primos que vuelven — explicado desde cero</title>
+<meta name="description" content="Qué primos p vuelven a sí mismos pasando por p+1, q²+q+1 y r²+r+1: cuál es la pregunta, cómo se revisaron todos los primos hasta 10^11 y qué salió, para cualquiera que sepa dividir.">
+<style>
+:root{--ink:#1f2933;--soft:#52606d;--mute:#7b8794;--line:#d9e0e6;--bg:#fbfbf9;--card:#fff;
+      --blue:#2f6fb5;--green:#2e7d52;--sel:#e8f0fa;
+      --serif:Georgia,'Iowan Old Style','Palatino Linotype',Palatino,serif;
+      --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+      --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+@media (prefers-color-scheme:dark){:root{--ink:#e4e7eb;--soft:#cbd2d9;--mute:#9aa5b1;--line:#3e4c59;
+      --bg:#12171c;--card:#1a2027;--blue:#7aaee0;--green:#6ec295;--sel:#1e2a38}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:19px;line-height:1.72}
+.wrap{max-width:50rem;margin:0 auto;padding:0 1.25rem 6rem}
+header.top{padding:3.5rem 0 2rem;border-bottom:3px double var(--line);margin-bottom:2rem}
+.kicker{font-family:var(--sans);font-size:.75rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mute);margin:0 0 .9rem}
+h1{font-size:2.3rem;line-height:1.18;margin:0 0 .8rem}
+.sub{font-size:1.1rem;color:var(--soft);margin:0}
+.byline{font-family:var(--sans);font-size:.82rem;color:var(--mute);margin-top:1.6rem}
+h2{font-family:var(--sans);font-size:1.42rem;line-height:1.3;margin:3.2rem 0 .4rem}
+h2 .num{color:var(--mute);margin-right:.5rem}
+h3{font-family:var(--sans);font-size:1.08rem;margin:2rem 0 .3rem}
+p{margin:0 0 1.15rem} a{color:var(--blue)}
+code,.calc{font-family:var(--mono);font-size:.92em}
+.calc{display:block;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:.9rem 1.1rem;margin:1.2rem 0;overflow-x:auto;white-space:pre}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:1.2rem 1.5rem;margin:0 0 2rem;font-family:var(--sans);font-size:.95rem}
+nav.toc ol{margin:0;padding-left:1.3rem;line-height:1.85}
+figure{margin:2rem 0} figure img{width:100%;height:auto;display:block;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:.75rem}
+figcaption{font-family:var(--sans);font-size:.86rem;color:var(--mute);margin-top:.7rem}
+.box{border-radius:12px;padding:1.15rem 1.4rem;margin:1.8rem 0;font-family:var(--sans);font-size:.97rem;line-height:1.65}
+.def{background:var(--sel);border:1px solid var(--line)} .def dt{font-weight:700;margin-top:.7rem} .def dd{margin:.15rem 0 0;color:var(--soft)}
+.try{background:var(--card);border:1px solid var(--green);border-left:5px solid var(--green)}
+details{margin-top:.8rem} summary{cursor:pointer;color:var(--green);font-weight:600}
+.tablewrap{overflow-x:auto} table{border-collapse:collapse;width:100%;font-family:var(--sans);font-size:.93rem}
+th,td{border-bottom:1px solid var(--line);padding:.45rem .6rem;text-align:left;vertical-align:top}
+</style>
+</head>
+<body><div class="wrap">
+<header class="top">
+<p class="kicker">Explicado desde cero · OEIS A354427</p>
+<h1>Primos que vuelven</h1>
+<p class="sub">Se parte de un primo, se dan tres pasos que sólo usan sumar y dividir, y se mira si se llega de nuevo al punto de partida. Se revisaron todos los primos hasta <span data-fact="x_bound">100.000.000.000</span>. Vuelven exactamente <span data-fact="n_terms">6</span>.</p>
+<p class="byline">Jorge Ellena Godoy · <a href="https://github.com/jorgell23-sys/de-koninck-cycle-primes">el repositorio</a> · <a href="../">in English</a></p>
+</header>
+
+<nav class="toc"><ol>
+<li><a href="#pregunta">La pregunta, con números</a></li><li><a href="#palabras">Cinco palabras</a></li>
+<li><a href="#receta">La receta</a></li><li><a href="#probalo">Probalo vos</a></li>
+<li><a href="#origen">De dónde sale la información</a></li><li><a href="#hallazgos">Qué se encontró</a></li>
+<li><a href="#comprobar">Cómo se sabe que no está mal</a></li><li><a href="#sirve">Para qué sirve</a></li>
+<li><a href="#nodice">Lo que no dice</a></li></ol></nav>
+
+<h2 id="pregunta"><span class="num">1</span>La pregunta, con números</h2>
+<p>Tomá el primo <b>631</b> y hacé tres cosas.</p>
+<span class="calc">631 + 1        =  632  = 2 · 2 · 2 · 79      → me quedo con el primo 79
+79·79 + 79 + 1 = 6321 = 3 · 7 · 7 · 43    → me quedo con el primo 43
+43·43 + 43 + 1 = 1893 = 3 · 631           → y aparece 631 otra vez.</span>
+<p>Fuimos 631 → 79 → 43 → 631 y volvimos al principio. Ahora probá con el primo <b>7</b>: 7 + 1 = 8 = 2·2·2, así que hay que quedarse con 2; después 2·2 + 2 + 1 = 7, me quedo con 7; y 7·7 + 7 + 1 = 57 = 3 · 19. En 57 no hay ningún 7. El primo 7 <i>no</i> vuelve.</p>
+<p>La pregunta es sólo ésta: <b>¿qué primos vuelven?</b> Tomohiro Yamada la hizo en 2022, encontró 3, 13, 19 y 631, comprobó que no hay otros por debajo de 16.777.216 y anotó dos mucho más grandes. Lo que nadie sabía es si había otros escondidos entre medio.</p>
+
+<h2 id="palabras"><span class="num">2</span>Cinco palabras</h2>
+<dl class="box def">
+<dt>primo</dt><dd>un número entero mayor que 1 que sólo lo dividen el 1 y él mismo: 2, 3, 5, 7, 11, 13, …, 631.</dd>
+<dt>divide</dt><dd>«79 divide a 632» quiere decir que 632 ÷ 79 no deja resto: 632 = 8 · 79.</dd>
+<dt>paso</dt><dd>desde un primo <i>p</i> se puede ir a cualquier primo que divida a <i>p</i> + 1 (primer paso) o a <i>x·x + x + 1</i> (segundo y tercer paso).</dd>
+<dt>testigo</dt><dd>los dos primos por los que se pasa en la vuelta. Para 631 el testigo es (79, 43). Cualquiera lo comprueba con una calculadora.</dd>
+<dt>resto</dt><dd>lo que sobra al dividir: 1893 entre 631 deja resto 0, y 57 entre 7 deja resto 1.</dd>
+</dl>
+
+<h2 id="receta"><span class="num">3</span>La receta</h2>
+<p>Para un primo <i>p</i>: (1) escribí <i>p</i> + 1 como producto de primos y elegí uno, <i>q</i>. (2) Calculá <i>q·q + q + 1</i>, escribilo como producto de primos y elegí uno, <i>r</i>. (3) Calculá <i>r·r + r + 1</i> y fijate si <i>p</i> lo divide. Si alguna elección de <i>q</i> y <i>r</i> funciona, <i>p</i> está en la lista.</p>
+<figure><img src="../figures/cycle.es.svg" alt="El ciclo de 631 a 79 a 43 y de vuelta a 631"><figcaption><b>Figura 1.</b> La vuelta de 631. Cada flecha es un paso de la receta.</figcaption></figure>
+
+<h2 id="probalo"><span class="num">4</span>Probalo vos</h2>
+<div class="box try"><p>¿Vuelve el primo <b>19</b>? Sólo hace falta sumar, multiplicar y dividir por números chicos.</p>
+<details><summary>Ver la respuesta</summary><p>19 + 1 = 20 = 2 · 2 · 5. Elegí <i>q</i> = 2: 2·2 + 2 + 1 = 7, así que <i>r</i> = 7. Después 7·7 + 7 + 1 = 57 = 3 · 19. Sí: 19 → 2 → 7 → 19, y 19 está en la lista.</p></details></div>
+
+<h2 id="origen"><span class="num">5</span>De dónde sale la información</h2>
+<p>De un programa que aplica la receta a <b>todos</b> los primos hasta <span data-fact="x_bound">100.000.000.000</span> —unos cuatro mil millones de primos— y a nada más. Nadie eligió qué primos mirar y nadie opinó: el programa encuentra un testigo o no lo encuentra.</p>
+<p>La parte difícil es el paso (2): <i>q·q + q + 1</i> puede tener veinte cifras, y descomponer números así miles de millones de veces es lento. El programa lo evita con un atajo que está demostrado en el repositorio. Si el primo <i>r</i> que buscamos es más grande que <i>p</i>, el otro factor de <i>q·q + q + 1</i> es más chico que <i>p</i>, y las reglas de los restos dicen exactamente cuál tiene que ser. Entonces, en vez de descomponer un número grande, alcanza con probar una división.</p>
+<figure><img src="../figures/reduction.es.svg" alt="El cofactor queda forzado a un solo lugar por debajo de p"><figcaption><b>Figura 2.</b> Por qué funciona el atajo: el factor que sobra tiene un único valor posible, así que una división decide.</figcaption></figure>
+
+<h2 id="hallazgos"><span class="num">6</span>Qué se encontró</h2>
+<p>Hasta <span data-fact="x_bound">100.000.000.000</span> vuelven exactamente <span data-fact="n_terms">6</span> primos: 3, 13, 19, 631, <b><span data-fact="a5">1.794.067.711</span></b> y <b><span data-fact="a6">10.855.016.833</span></b>.</p>
+<p>Que los dos últimos vuelven ya se sabía. Lo nuevo es que <b>no hay nada entre medio</b>: entre 631 y 1.794.067.711, entre ése y 10.855.016.833, y desde ahí hasta cien mil millones, ningún otro primo hace la vuelta. Eso es lo que permite anotar 1.794.067.711 y 10.855.016.833 como los miembros quinto y sexto de la lista, y lleva la búsqueda de <span data-fact="old_frontier">16.777.216</span> a cien mil millones.</p>
+<figure><img src="../figures/frontier.es.svg" alt="Los seis primos en escala logarítmica y la frontera de búsqueda"><figcaption><b>Figura 3.</b> Los seis primos (puntos) y hasta dónde llegó cada búsqueda, en una escala donde cada marca vale diez veces la anterior.</figcaption></figure>
+
+<h2 id="comprobar"><span class="num">7</span>Cómo se sabe que no está mal</h2>
+<p><b>Encuentra lo que ya se sabía.</b> Corrido desde cero, el programa devuelve exactamente el 3, 13, 19 y 631 de Yamada, y nada más por debajo de 16.777.216, que es la cota que él publicó. También encuentra sus dos primos grandes, con los mismos testigos que él dio. Una comprobación que reproduce respuestas conocidas se llama <i>control positivo</i>: si el programa se perdiera algo que tiene que encontrar, lo sabríamos.</p>
+<p><b>Tres programas distintos coinciden.</b> Uno sigue la receta al pie de la letra, descomponiendo cada número en primos. Otro descompone <i>q·q + q + 1</i> por un método completamente distinto y recorre el camino al revés. El tercero usa el atajo. No comparten nada salvo la pregunta, y dan las mismas vueltas, una por una, donde se superponen.</p>
+<p><b>Cada respuesta se vuelve a comprobar con aritmética exacta.</b> El programa rápido sólo propone; cada testigo se verifica después con números enteros, cosa que cualquiera puede repetir.</p>
+
+<h2 id="sirve"><span class="num">8</span>Para qué sirve</h2>
+<p>Estos primos vienen de un problema de Jean-Marie De Koninck: ¿para qué números <i>n</i> la suma de los divisores de <i>n</i> es igual al cuadrado del producto de sus primos distintos? Sólo se conocen 1 y 1782. Yamada demostró que cierto tipo de solución necesitaría un primo de esta lista, o de otra parecida con cuatro pasos. Así que conocer la lista exacta hasta una cota le dice a quien busque soluciones dónde no pueden estar. No resuelve el problema.</p>
+
+<h2 id="nodice"><span class="num">9</span>Lo que no dice</h2>
+<p>No dice si la lista sigue para siempre o se termina. No dice nada por encima de cien mil millones. No resuelve el problema de De Koninck ni toca la lista de cuatro pasos (OEIS A355298), que pide factorizar números mucho más difíciles. Y no descubre los primos quinto y sexto —eso lo hizo Yamada—: muestra que antes de ellos no hay otros.</p>
+
+<h2 id="glosario">Glosario</h2>
+<div class="tablewrap"><table><tr><th>palabra</th><th>qué quiere decir</th><th>ejemplo</th></tr>
+<tr><td>primo</td><td>sólo lo dividen el 1 y él mismo</td><td>631</td></tr>
+<tr><td>divide</td><td>no deja resto</td><td>631 divide a 1893</td></tr>
+<tr><td>testigo</td><td>los primos por los que se pasa en la vuelta</td><td>(79, 43) para 631</td></tr>
+<tr><td>control positivo</td><td>una prueba que tiene que encontrar algo ya conocido</td><td>encontrar 3, 13, 19, 631</td></tr>
+<tr><td>resto</td><td>lo que sobra al dividir</td><td>57 ÷ 7 deja 1</td></tr></table></div>
+
+<h2 id="biblio">Para seguir leyendo</h2>
+<h3>Nivel 1 — sin fórmulas</h3>
+<p><a href="https://oeis.org/A354427">OEIS A354427</a>, la ficha de esta lista, con los comentarios de Yamada. <a href="https://es.wikipedia.org/wiki/Funci%C3%B3n_divisor">Función divisor</a> en Wikipedia, para la suma de divisores.</p>
+<h3>Nivel 2 — un libro de texto</h3>
+<p>G. H. Hardy y E. M. Wright, <i>An Introduction to the Theory of Numbers</i>, capítulo XVI (las funciones aritméticas, entre ellas la suma de divisores). K. Ireland y M. Rosen, <i>A Classical Introduction to Modern Number Theory</i>, capítulo 9, para las raíces cúbicas de la unidad módulo un primo que usa el atajo.</p>
+<h3>Nivel 3 — los trabajos con los que éste se compara</h3>
+<p>T. Yamada, <i>On a problem of De Koninck</i>, Moscow J. Combinatorics and Number Theory 10 (2021) 249–260, <a href="https://doi.org/10.2140/moscow.2021.10.249">doi:10.2140/moscow.2021.10.249</a> —de donde salen estos primos—. K. A. Broughan, J.-M. De Koninck, I. Kátai y F. Luca, <i>On integers for which the sum of divisors is the square of the squarefree core</i>, J. Integer Sequences 15 (2012), 12.7.5. El <a href="https://github.com/lucasaugustus/oeis/blob/main/A354426.py">programa de L. A. Brown para la hermana A354426</a>, que él llevó hasta 10<sup>8</sup>.</p>
+</div></body></html>

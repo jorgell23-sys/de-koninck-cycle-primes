@@ -1,0 +1,31 @@
+{
+  "title": "OEIS A354427 has no other terms below 10^11",
+  "upload_type": "dataset",
+  "description": "The primes p ≤ 10^11 for which there are primes q, r with q | p+1, r | q²+q+1 and p | r²+r+1 (OEIS A354427, T. Yamada) are exactly 3, 13, 19, 631, 1794067711 and 10855016833. Hence a(5) = 1794067711, a(6) = 10855016833, and there is no a(7) below 10^11; the previous search bound was 2^24. The repository contains the reduction lemma that decides each pair (p, q) with one division instead of factoring q²+q+1, the search program, the complete search log in blocks of 10^9, and a verifier that runs with the Python standard library only.",
+  "license": "cc-by-4.0",
+  "creators": [
+    {
+      "name": "Ellena Godoy, Jorge"
+    }
+  ],
+  "keywords": [
+    "number theory",
+    "arithmetic functions",
+    "computational number theory",
+    "sum of divisors",
+    "OEIS A354427",
+    "De Koninck problem"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://oeis.org/A354427",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "10.2140/moscow.2021.10.249",
+      "relation": "references",
+      "scheme": "doi"
+    }
+  ]
+}

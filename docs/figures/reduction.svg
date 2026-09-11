@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 310" width="100%" role="img" aria-label="the forced cofactor">
+<style>
+  svg { font-family: system-ui, -apple-system, 'Segoe UI', sans-serif; }
+  .ink { fill: #1d2433; } .soft { fill: #5b6478; } .line { stroke: #1d2433; }
+  .accent { fill: #2f6fdd; } .accentline { stroke: #2f6fdd; }
+  .warm { fill: #c2541b; } .warmline { stroke: #c2541b; }
+  .box { fill: #eef2fa; stroke: #9aa7c2; } .grid { stroke: #d5dbe7; }
+  @media (prefers-color-scheme: dark) {
+    .ink { fill: #e7ebf3; } .soft { fill: #a8b1c4; } .line { stroke: #e7ebf3; }
+    .accent { fill: #7aa7ff; } .accentline { stroke: #7aa7ff; }
+    .warm { fill: #ff9a5c; } .warmline { stroke: #ff9a5c; }
+    .box { fill: #1f2940; stroke: #4a587a; } .grid { stroke: #2e3850; }
+  }
+</style>
+<line x1="60" y1="150" x2="620" y2="150" class="line" stroke-width="2"/>
+<line x1="60" y1="140" x2="60" y2="160" class="line" stroke-width="2"/>
+<text x="60.0" y="182.0" class="ink" font-size="16" text-anchor="middle" font-weight="normal">0</text>
+<line x1="620" y1="140" x2="620" y2="160" class="line" stroke-width="2"/>
+<text x="620.0" y="182.0" class="ink" font-size="16" text-anchor="middle" font-weight="normal">p</text>
+<rect x="60" y="139" width="140.0" height="22" class="box" stroke-width="1"/>
+<text x="130.0" y="128.0" class="accent" font-size="14" text-anchor="middle" font-weight="normal">m < N/p < p/4 + 2</text>
+<circle cx="132.8" cy="150" r="7" class="warm"/>
+<text x="132.8" y="182.0" class="warm" font-size="14" text-anchor="middle" font-weight="normal">m = N·ρ′ mod p</text>
+<text x="340.0" y="235.0" class="soft" font-size="14" text-anchor="middle" font-weight="normal">If r > p, the cofactor m = N/r is smaller than p,</text>
+<text x="340.0" y="257.0" class="soft" font-size="14" text-anchor="middle" font-weight="normal">and since m ≡ N·ρ′ (mod p) it has only one possible place:</text>
+<text x="340.0" y="279.0" class="soft" font-size="14" text-anchor="middle" font-weight="normal">one division decides, without factoring N = q² + q + 1.</text>
+</svg>

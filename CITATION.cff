@@ -22,7 +22,7 @@ keywords:
 repository-code: "https://github.com/jorgell23-sys/de-koninck-cycle-primes"
 url: "https://jorgell23-sys.github.io/de-koninck-cycle-primes/"
 license: CC-BY-4.0
-version: 1.0.0
+version: 1.0.1
 references:
   - type: article
     title: "On a problem of De Koninck"
@@ -36,3 +36,11 @@ references:
     end: 260
     year: 2021
     doi: "10.2140/moscow.2021.10.249"
+doi: "10.5281/zenodo.22708291"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22708291"
+    description: "Concept DOI: always the latest version"
+  - type: doi
+    value: "10.5281/zenodo.22708292"
+    description: "DOI of this version"

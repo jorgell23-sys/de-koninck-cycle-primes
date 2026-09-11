@@ -26,6 +26,11 @@
       "identifier": "10.2140/moscow.2021.10.249",
       "relation": "references",
       "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.22708291",
+      "relation": "isVersionOf",
+      "scheme": "doi"
     }
   ]
 }

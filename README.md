@@ -84,3 +84,13 @@ results were produced by an automated system (Claude, Anthropic) under that
 direction. All computations were verified by two independent implementations
 and cross-checked against published work. The author is responsible for the
 correctness of everything published here.
+
+---
+
+## Citing
+
+Cite the **concept DOI**, which always points at the latest version:
+
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22708291.svg)](https://doi.org/10.5281/zenodo.22708291)
+
+    10.5281/zenodo.22708291
